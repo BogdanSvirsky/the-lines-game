@@ -2,10 +2,6 @@ import pygame
 import random
 from players import Player
 
-
-POINT_SIZE = 7
-
-
 class Point:
     def __init__(self, x, y) -> None:
         self.x = x
@@ -102,6 +98,7 @@ class GameField: # i want to realize scaling of game field
         self.zero_y = zero_y
         last_point = self.points[-1]
         self.current_player = 0
+        self.POINT_SIZE = 7
 
         while (last_point.x + self.delta_x < self.zero_x + self.length_x) or (last_point.y + self.delta_y < self.zero_y + self.length_y):
             if (last_point.x + self.delta_x < self.zero_x + self.length_x) and (last_point.y + self.delta_y < self.zero_y + self.length_y):
@@ -114,7 +111,6 @@ class GameField: # i want to realize scaling of game field
             last_point = self.points[-1]
     
     def render(self, screen, mouse_x, mouse_y) -> None:
-        POINT_SIZE = 7
         pygame.draw.rect(screen, (230, 230, 230), pygame.Rect(self.zero_x, self.zero_y, self.length_x, self.length_y), border_radius=8, )
         
         for point in self.points:
@@ -122,7 +118,7 @@ class GameField: # i want to realize scaling of game field
                 color = self.players[point.host].color
             else:
                 color = (20, 20, 20)
-            pygame.draw.polygon(screen, color, [(point.x - POINT_SIZE, point.y), (point.x, point.y + POINT_SIZE), (point.x + POINT_SIZE, point.y), (point.x, point.y - POINT_SIZE)])
+            pygame.draw.polygon(screen, color, [(point.x - self.POINT_SIZE, point.y), (point.x, point.y + self.POINT_SIZE), (point.x + self.POINT_SIZE, point.y), (point.x, point.y - self.POINT_SIZE)])
         for polygon in self.polygons:
             if polygon.selected:
                 coords = polygon.coords + [(mouse_x, mouse_y)]
@@ -133,7 +129,7 @@ class GameField: # i want to realize scaling of game field
     def select_point(self, x, y) -> bool:
         for i in range(len(self.points)):
             point = self.points[i]
-            if (point.x - POINT_SIZE <= x <= point.x + POINT_SIZE) and (point.y - POINT_SIZE <= y <= point.y + POINT_SIZE):
+            if (point.x - self.POINT_SIZE <= x <= point.x + self.POINT_SIZE) and (point.y - self.POINT_SIZE <= y <= point.y + self.POINT_SIZE):
                 print(i, len(self.points))
                 if not self.points[i].host:
                     self.points[i].host = self.current_player
@@ -148,7 +144,7 @@ class GameField: # i want to realize scaling of game field
     def select_place(self, x, y) -> bool:
         for i in range(len(self.points)):
             point = self.points[i]
-            if (point.x - POINT_SIZE <= x <= point.x + POINT_SIZE) and (point.y - POINT_SIZE <= y <= point.y + POINT_SIZE):
+            if (point.x - self.POINT_SIZE <= x <= point.x + self.POINT_SIZE) and (point.y - self.POINT_SIZE <= y <= point.y + self.POINT_SIZE):
                 if self.polygons[-1].selected:
                     self.polygons[-1].add_coords(point.x, point.y)
                 else:
