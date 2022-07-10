@@ -25,7 +25,10 @@ class PenTool: # i want to make tool for move and scale a game field, pointer to
             return False
         
     def render(self, screen):
-        pass
+        if self.is_clicked:
+            pass
+        else:
+            pass
 
     def click(self, mouse_x, mouse_y):
         pass
