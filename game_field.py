@@ -87,7 +87,7 @@ class Button:
 
 
 class GameField: # i want to realize scaling of game field
-    def __init__(self, zero_x, zero_y) -> None:
+    def __init__(self, zero_x: int, zero_y: int) -> None:
         self.players: Player = [Player("Богдан", (255, 0, 0)), Player("Даня", (0, 0, 255))]
         self.delta_x, self.delta_y = 50, 50
         self.points: Point = [Point(zero_x + self.delta_x, zero_y + self.delta_y)]

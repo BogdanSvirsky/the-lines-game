@@ -2,8 +2,6 @@ import time
 import pygame
 import os
 from game_field import GameField
-from game_field import Button
-from game_field import SelectOption
 from elements import PenTool
 from elements import RulerTool
 
@@ -11,6 +9,9 @@ def render(game_field, mouse_x, mouse_y):
     game_field.render(screen, mouse_x, mouse_y)
     for element in elements:
         element.render(screen)
+    allsprites.update()
+    allsprites.draw(screen)
+    print("render is complete ;)", end='\r')
 
 def render_scoreboard(game_field, width: int):
     os.system('cls')
@@ -31,8 +32,9 @@ pygame.display.set_caption("Линейная игра")
 game_field = GameField(100, 50)
 elements = []
 running = True
-pen = PenTool(0, 0)
-ruler = RulerTool(0, 0)
+pen = PenTool(screen, 600, 0)
+ruler = RulerTool(screen, 0, 0)
+allsprites = pygame.sprite.Group(pen, ruler)
 
 for player in game_field.players:
     print(f'{player.nickname}', end='\t')
