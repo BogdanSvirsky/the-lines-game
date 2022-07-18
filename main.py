@@ -7,8 +7,6 @@ from elements import RulerTool
 
 def render(game_field, mouse_x, mouse_y):
     game_field.render(screen, mouse_x, mouse_y)
-    for element in elements:
-        element.render(screen)
     allsprites.update()
     allsprites.draw(screen)
     print("render is complete ;)", end='\r')
@@ -26,14 +24,13 @@ def render_scoreboard(game_field, width: int):
 
 pygame.init()
 BACKGROUND_COLOR = (255, 255, 255)
-
-screen = pygame.display.set_mode([700, 700])
+screen = pygame.display.set_mode([900, 700])
 pygame.display.set_caption("Линейная игра")
 game_field = GameField(100, 50)
-elements = []
 running = True
-pen = PenTool(screen, 600, 0)
-ruler = RulerTool(screen, 0, 0)
+pen = PenTool(screen, 620, 60)
+ruler = RulerTool(screen, 620, 150)
+elements = [pen, ruler]
 allsprites = pygame.sprite.Group(pen, ruler)
 
 for player in game_field.players:
@@ -50,7 +47,8 @@ while running:
                 if event.button == 1:
                     mouse_x, mouse_y = event.pos[0], event.pos[1]
                     for element in elements:
-                        element.click(mouse_x, mouse_y)
+                        if element.click(mouse_x, mouse_y):
+                            break
                     if pen.is_clicked:
                         pen.select_point(game_field, mouse_x, mouse_y)
                     elif ruler.is_clicked:
