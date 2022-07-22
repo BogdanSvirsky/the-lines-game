@@ -83,6 +83,7 @@ class PenTool(pygame.sprite.Sprite): # i want to make tool for move and scale a 
     
     def unselect(self):
         self.is_clicked = False
+        self.unselect()
 
 
 class RulerTool(pygame.sprite.Sprite):
@@ -98,11 +99,15 @@ class RulerTool(pygame.sprite.Sprite):
         for i in range(len(game_field.points)):
             point = game_field.points[i]
             if (point.x - game_field.POINT_SIZE <= x <= point.x + game_field.POINT_SIZE) and (point.y - game_field.POINT_SIZE <= y <= point.y + game_field.POINT_SIZE):
-                if game_field.polygons[-1].selected:
-                    game_field.polygons[-1].add_coords(point.x, point.y)
+                if point.host == game_field.current_player:
+                    if not game_field.polygons[-1].selected or not game_field.polygons:
+                        game_field.polygons.append(Polygon(point.x, point.y, game_field.current_player))
+                    else:
+                        game_field.polygons[-1].add_coords(point.x, point.y)
+                    return True
                 else:
-                    game_field.polygons.append(Polygon(point.x, point.y, game_field.current_player))
-                return True
+                    print('\n', point.host)
+                    return False
         else:
             return False
 
@@ -132,6 +137,7 @@ class RulerTool(pygame.sprite.Sprite):
 
     def unselect(self):
         self.is_clicked = False
+        self.update()
 
     def click(self, mouse_x, mouse_y):
         if self.x <= mouse_x <= self.x + self.w:
@@ -157,20 +163,26 @@ class StatisticWidget:
         for i in range(len(self.game_field.players)):
             font = pygame.font.SysFont("Calibri", 40)
             text = font.render(f"{self.game_field.players[i].nickname}: {self.game_field.players[i].square}", True, (0, 0, 0))
-            textpos = text.get_rect(centery=self.rect.centery + 3, x=self.x + self.rect.width + indent)
+            textpos = text.get_rect(centery=text.get_rect().centery + 3, x=self.x + text.get_rect().width + indent)
             w = textpos.width + indent * 2.5
             h = textpos.height + indent
             if textdata_list:
-                x = textdata_list[-1][0] + indent
-                y = textdata_list[-1][1] + indent
+                x = textdata_list[-1][0] + textdata_list[-1][2] + indent * 2
             else:
                 x = self.x
-                y = self.y
-            textdata_list.append((x, y, w, h, text))
+            y = self.y
+            textdata_list.append((x, y, w, h, text, self.game_field.players[i].color))
         for textdata in textdata_list:
             x = textdata[0]
             y = textdata[1]
             w = textdata[2]
             h = textdata[3]
-            pygame.draw.rect(self.screen, self.game_field.players[self.game_field.current_player].color, pygame.Rect(x - indent // 2, y - indent // 2, w, h), border_radius=10)
-            screen.blit(textdata[-1], (x, y))
+            color = textdata[-1]
+            pygame.draw.rect(screen, color, pygame.Rect(x - indent, y - indent // 2, w - indent // 2, h), border_radius=10)
+            screen.blit(textdata[-2], (x, y))
+
+
+class HelpButton:
+    def __init__(self, x, y) -> None:
+        self.x = x
+        self.y = y

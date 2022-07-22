@@ -4,12 +4,14 @@ import os
 from game_field import GameField
 from elements import PenTool
 from elements import RulerTool
+from elements import StatisticWidget
 
 def render(game_field, mouse_x, mouse_y):
     game_field.render(screen, mouse_x, mouse_y)
     allsprites.update()
     allsprites.draw(screen)
     print("render is complete ;)", end='\r')
+    statistic.render(screen)
 
 def render_scoreboard(game_field, width: int):
     os.system('cls')
@@ -24,12 +26,13 @@ def render_scoreboard(game_field, width: int):
 
 pygame.init()
 BACKGROUND_COLOR = (255, 255, 255)
-screen = pygame.display.set_mode([900, 700])
+screen = pygame.display.set_mode([600, 900])
 pygame.display.set_caption("Линейная игра")
-game_field = GameField(100, 50)
+game_field = GameField(50, 135)
 running = True
-pen = PenTool(screen, 620, 60)
-ruler = RulerTool(screen, 620, 150)
+pen = PenTool(screen, 50, 40)
+ruler = RulerTool(screen, 320, 40)
+statistic = StatisticWidget(100, 725, game_field)
 elements = [pen, ruler]
 allsprites = pygame.sprite.Group(pen, ruler)
 
@@ -47,12 +50,16 @@ while running:
                 if event.button == 1:
                     mouse_x, mouse_y = event.pos[0], event.pos[1]
                     for element in elements:
-                        if element.click(mouse_x, mouse_y):
+                        if element.click(mouse_x, mouse_y): 
                             break
                     if pen.is_clicked:
                         pen.select_point(game_field, mouse_x, mouse_y)
+                        ruler.unselect()
+                        pen.update()
                     elif ruler.is_clicked:
-                        ruler.select_place(game_field, mouse_x, mouse_y)
+                        print(ruler.select_place(game_field, mouse_x, mouse_y))
+                        pen.unselect()
+                        ruler.update()
     except Exception as a:
         print(a)
     screen.fill(BACKGROUND_COLOR)
