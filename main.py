@@ -6,66 +6,49 @@ from elements import PenTool
 from elements import RulerTool
 from elements import StatisticWidget
 
-def render(game_field, mouse_x, mouse_y):
-    game_field.render(screen, mouse_x, mouse_y)
+
+def render(game_field):
+    game_field.render(screen)
     allsprites.update()
     allsprites.draw(screen)
-    print("render is complete ;)", end='\r')
+    for player in game_field.players:
+        player.update()
     statistic.render(screen)
-
-def render_scoreboard(game_field, width: int):
-    os.system('cls')
-    print("Таблица счёта".center(width, ' '))
-    print("-" * width)
-    print('|', end='')
-    for player in game_field.players:
-        print(player.nickname.center(width // len(game_field.players)))
-    for player in game_field.players:
-        print(str(player.square).center(width // len(game_field.players)))
-
 
 pygame.init()
 BACKGROUND_COLOR = (255, 255, 255)
 screen = pygame.display.set_mode([600, 900])
 pygame.display.set_caption("Линейная игра")
-game_field = GameField(50, 135)
+game_field = GameField(50, 190)
 running = True
-pen = PenTool(screen, 50, 40)
-ruler = RulerTool(screen, 320, 40)
-statistic = StatisticWidget(100, 725, game_field)
-elements = [pen, ruler]
+pen = PenTool(screen, 50, 725)
+ruler = RulerTool(screen, 320, 725)
+statistic = StatisticWidget(100, 60, game_field)
 allsprites = pygame.sprite.Group(pen, ruler)
 
-for player in game_field.players:
-    print(f'{player.nickname}', end='\t')
-print()
 while running:
-    mouse_x, mouse_y = 0, 0
-    try:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-                print("\nclose")
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    mouse_x, mouse_y = event.pos[0], event.pos[1]
-                    for element in elements:
-                        if element.click(mouse_x, mouse_y): 
-                            break
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+            print("\nclose")
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                mouse_x, mouse_y = event.pos[0], event.pos[1]
+                if pen.is_clicked:
+                    if pen.select_point(game_field, mouse_x, mouse_y):
+                        continue
+                elif ruler.is_clicked:
+                    info = ruler.select_place(game_field, mouse_x, mouse_y)
+                    print(info)
+                    if info:
+                        continue
+                if pen.click(mouse_x, mouse_y):
                     if pen.is_clicked:
-                        pen.select_point(game_field, mouse_x, mouse_y)
                         ruler.unselect()
-                        pen.update()
-                    elif ruler.is_clicked:
-                        print(ruler.select_place(game_field, mouse_x, mouse_y))
+                elif ruler.click(mouse_x, mouse_y):
+                    if ruler.is_clicked:
                         pen.unselect()
-                        ruler.update()
-    except Exception as a:
-        print(a)
     screen.fill(BACKGROUND_COLOR)
-    render(game_field, mouse_x, mouse_y)
-    
+    render(game_field)
     pygame.display.flip()
-
-
 pygame.quit()

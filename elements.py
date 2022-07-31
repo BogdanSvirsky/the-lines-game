@@ -1,3 +1,4 @@
+from turtle import width
 import pygame
 import os
 from game_field import GameField
@@ -83,7 +84,7 @@ class PenTool(pygame.sprite.Sprite): # i want to make tool for move and scale a 
     
     def unselect(self):
         self.is_clicked = False
-        self.unselect()
+        self.update()
 
 
 class RulerTool(pygame.sprite.Sprite):
@@ -96,18 +97,14 @@ class RulerTool(pygame.sprite.Sprite):
         self.update()
     
     def select_place(self, game_field: GameField, x, y) -> bool:
-        for i in range(len(game_field.points)):
-            point = game_field.points[i]
+        for point in game_field.points:
             if (point.x - game_field.POINT_SIZE <= x <= point.x + game_field.POINT_SIZE) and (point.y - game_field.POINT_SIZE <= y <= point.y + game_field.POINT_SIZE):
-                if point.host == game_field.current_player:
-                    if not game_field.polygons[-1].selected or not game_field.polygons:
-                        game_field.polygons.append(Polygon(point.x, point.y, game_field.current_player))
-                    else:
+                if game_field.current_player == point.host:
+                    if game_field.polygons and game_field.polygons[-1].is_selected:
                         game_field.polygons[-1].add_coords(point.x, point.y)
+                    else:
+                        game_field.polygons.append(Polygon(point.x, point.y, game_field.current_player))
                     return True
-                else:
-                    print('\n', point.host)
-                    return False
         else:
             return False
 
@@ -160,29 +157,33 @@ class StatisticWidget:
     def render(self, screen):
         indent = 20
         textdata_list = []
+        font_title = pygame.font.SysFont("Calibri", 33)
+        text_title = font_title.render("Количество очков:", True, (0, 0, 0))
+        text_title_pos = text_title.get_rect(centerx=screen.get_rect().centerx, y=self.y)
+        screen.blit(text_title, text_title_pos)
         for i in range(len(self.game_field.players)):
+            color = self.game_field.players[i].color
             font = pygame.font.SysFont("Calibri", 40)
+            if i == self.game_field.current_player:
+                font.underline = True
             text = font.render(f"{self.game_field.players[i].nickname}: {self.game_field.players[i].square}", True, (0, 0, 0))
-            textpos = text.get_rect(centery=text.get_rect().centery + 3, x=self.x + text.get_rect().width + indent)
-            w = textpos.width + indent * 2.5
-            h = textpos.height + indent
             if textdata_list:
-                x = textdata_list[-1][0] + textdata_list[-1][2] + indent * 2
+                if textdata_list[-1][-1].x >= screen.get_rect().centerx // 2:
+                    if i + 1 == len(self.game_field.players):
+                        textpos = text.get_rect(y=textdata_list[-1][-1].y + textdata_list[-1][-1].height + indent, centerx=screen.get_rect().centerx)
+                    else:
+                        textpos = text.get_rect(y=textdata_list[-1][-1].y + textdata_list[-1][-1].height + indent, centerx=screen.get_rect().centerx // 2)
+                else:
+                    textpos = text.get_rect(centery=textdata_list[-1][-1].centery, centerx=screen.get_rect().centerx * 1.5)
             else:
-                x = self.x
-            y = self.y
-            textdata_list.append((x, y, w, h, text, self.game_field.players[i].color))
-        for textdata in textdata_list:
-            x = textdata[0]
-            y = textdata[1]
-            w = textdata[2]
-            h = textdata[3]
-            color = textdata[-1]
-            pygame.draw.rect(screen, color, pygame.Rect(x - indent, y - indent // 2, w - indent // 2, h), border_radius=10)
-            screen.blit(textdata[-2], (x, y))
+                textpos = text.get_rect(y=text_title_pos.height + self.y + indent, centerx=screen.get_rect().centerx // 2)
+            textdata_list.append((text, color, textpos))
+
+        for text, color, textpos in textdata_list:
+            pygame.draw.rect(screen, color, text.get_rect(width=textpos.width + indent, height=textpos.height + indent, centerx=textpos.centerx, centery=textpos.centery), border_radius=7)
+            screen.blit(text, textpos)                      
 
 
-class HelpButton:
-    def __init__(self, x, y) -> None:
-        self.x = x
-        self.y = y
+class Camera:
+    def __init__(self) -> None: # i don't know...
+        pass
