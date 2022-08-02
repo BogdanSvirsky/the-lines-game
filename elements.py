@@ -109,31 +109,34 @@ class RulerTool(pygame.sprite.Sprite):
             return False
 
     def update(self):
-            indent = 20
-            if self.is_clicked:
-                self.image, self.rect = load_image("ruler_icon_selected.png")
-            else:
-                self.image, self.rect = load_image("ruler_icon.png", -1)
-            self.rect.move_ip(self.x, self.y)
-            if self.is_clicked:
-                font = pygame.font.SysFont("Calibri", 40)
-                text = font.render("Линейка", True, (255, 255, 255))
-                textpos = text.get_rect(centery=self.rect.centery + 3, x=self.x + self.rect.width + indent)
-                w = self.rect.width + textpos.width + indent * 2.5
-                h = self.rect.height + indent
-                pygame.draw.rect(self.screen, (0, 0, 0), pygame.Rect(self.x - indent // 2, self.y - indent // 2, w, h), border_radius=10)
-                self.screen.blit(text, textpos)
-            else:
-                font = pygame.font.SysFont("Calibri", 40)
-                text = font.render("Линейка", True, (0, 0, 0))
-                textpos = text.get_rect(centery=self.rect.centery + 3, x=self.x + self.rect.width + indent)
-                self.screen.blit(text, textpos)
-                w = self.rect.width + textpos.width + indent * 2.5
-                h = self.rect.height + indent
-            self.w, self.h = w, h
+        indent = 20
+        if self.is_clicked:
+            self.image, self.rect = load_image("ruler_icon_selected.png")
+        else:
+            self.image, self.rect = load_image("ruler_icon.png", -1)
+        self.rect.move_ip(self.x, self.y)
+        if self.is_clicked:
+            font = pygame.font.SysFont("Calibri", 40)
+            text = font.render("Линейка", True, (255, 255, 255))
+            textpos = text.get_rect(centery=self.rect.centery + 3, x=self.x + self.rect.width + indent)
+            w = self.rect.width + textpos.width + indent * 2.5
+            h = self.rect.height + indent
+            pygame.draw.rect(self.screen, (0, 0, 0), pygame.Rect(self.x - indent // 2, self.y - indent // 2, w, h), border_radius=10)
+            self.screen.blit(text, textpos)
+        else:
+            font = pygame.font.SysFont("Calibri", 40)
+            text = font.render("Линейка", True, (0, 0, 0))
+            textpos = text.get_rect(centery=self.rect.centery + 3, x=self.x + self.rect.width + indent)
+            self.screen.blit(text, textpos)
+            w = self.rect.width + textpos.width + indent * 2.5
+            h = self.rect.height + indent
+        self.w, self.h = w, h
 
-    def unselect(self):
+    def unselect(self, game_field: GameField):
         self.is_clicked = False
+        if game_field.polygons:
+            if not self.is_clicked and game_field.polygons[-1].is_selected:
+                game_field.polygons.pop(-1)
         self.update()
 
     def click(self, mouse_x, mouse_y):

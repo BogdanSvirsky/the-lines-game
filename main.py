@@ -1,4 +1,5 @@
 import time
+from kiwisolver import Expression
 import pygame
 import os
 from game_field import GameField
@@ -26,29 +27,36 @@ ruler = RulerTool(screen, 320, 725)
 statistic = StatisticWidget(100, 60, game_field)
 allsprites = pygame.sprite.Group(pen, ruler)
 
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-            print("\nclose")
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
-                mouse_x, mouse_y = event.pos[0], event.pos[1]
-                if pen.is_clicked:
-                    if pen.select_point(game_field, mouse_x, mouse_y):
-                        continue
-                elif ruler.is_clicked:
-                    info = ruler.select_place(game_field, mouse_x, mouse_y)
-                    print(info)
-                    if info:
-                        continue
-                if pen.click(mouse_x, mouse_y):
+try:
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                print("\nclose")
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    ruler.unselect(game_field)
+                    pen.unselect()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    mouse_x, mouse_y = event.pos[0], event.pos[1]
                     if pen.is_clicked:
-                        ruler.unselect()
-                elif ruler.click(mouse_x, mouse_y):
-                    if ruler.is_clicked:
-                        pen.unselect()
-    screen.fill(BACKGROUND_COLOR)
-    render(game_field)
-    pygame.display.flip()
+                        if pen.select_point(game_field, mouse_x, mouse_y):
+                            continue
+                    elif ruler.is_clicked:
+                        info = ruler.select_place(game_field, mouse_x, mouse_y)
+                        print(info)
+                        if info:
+                            continue
+                    if pen.click(mouse_x, mouse_y):
+                        if pen.is_clicked:
+                            ruler.unselect(game_field)
+                    elif ruler.click(mouse_x, mouse_y):
+                        if ruler.is_clicked:
+                            pen.unselect()
+        screen.fill(BACKGROUND_COLOR)
+        render(game_field)
+        pygame.display.flip()
+except Exception as a:
+    print(a)
 pygame.quit()
