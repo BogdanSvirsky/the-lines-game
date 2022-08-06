@@ -1,23 +1,27 @@
 import pygame
-import random
 from players import Player
+from players import check_polygon_params
+
 
 class Point:
     def __init__(self, x, y) -> None:
         self.x = x
         self.y = y
         self.host = None
+        self.is_available = False
 
 
 class Polygon:
-    def __init__(self, x, y, n) -> None:
+    def __init__(self, x, y, n, game_field) -> None:
         self.coords = [(x, y)]
         self.is_selected = True
         self.host = n
+        self.game_field = game_field
     
     def add_coords(self, x, y):
         if (x == self.coords[0][0]) and (y == self.coords[0][1]):
-            self.is_selected = False
+            if check_polygon_params(self, self.game_field)[-1]:
+                self.is_selected = False
         else:
             self.coords.append((x, y))
         print(self.coords)
@@ -52,10 +56,14 @@ class GameField: # i want to realize scaling of game field
         pygame.draw.rect(screen, (230, 230, 230), pygame.Rect(self.zero_x, self.zero_y, self.length_x, self.length_y), border_radius=8)
         
         for point in self.points:
+            if point.host:
+                check_available_points(point, self)
             if point.host != None:
                 color = self.players[point.host].color
+            elif point.is_available:
+                color = (5, 5, 5)
             else:
-                color = (20, 20, 20)
+                color = (100, 100, 100)
             pygame.draw.polygon(screen, color, [(point.x - self.POINT_SIZE, point.y), (point.x, point.y + self.POINT_SIZE), (point.x + self.POINT_SIZE, point.y), (point.x, point.y - self.POINT_SIZE)])
         for polygon in self.polygons:
             if len(polygon.coords) >= 2:
@@ -64,3 +72,20 @@ class GameField: # i want to realize scaling of game field
                 else:
                     coords = polygon.coords
                 pygame.draw.polygon(screen, self.players[polygon.host].color, coords, width=5)
+
+
+def find_point(x: int, y: int, game_field: GameField) -> Point:
+    for point in game_field.points:
+        if point.x == x and point.y == y:
+            return point
+
+def check_available_points(main_point: Point, game_field: GameField) -> None:
+    for point in game_field.points:
+        if not point.host:
+            if main_point.x - game_field.delta_x <= point.x <= main_point.x + game_field.delta_x:
+                if main_point.y - game_field.delta_y <= point.y <= main_point.y + game_field.delta_y:
+                    point.is_avaliable = True
+                else:
+                    point.is_avaliable = False
+            else:
+                point.is_avaliable = False

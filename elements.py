@@ -103,7 +103,7 @@ class RulerTool(pygame.sprite.Sprite):
                     if game_field.polygons and game_field.polygons[-1].is_selected:
                         game_field.polygons[-1].add_coords(point.x, point.y)
                     else:
-                        game_field.polygons.append(Polygon(point.x, point.y, game_field.current_player))
+                        game_field.polygons.append(Polygon(point.x, point.y, game_field.current_player, game_field))
                     return True
         else:
             return False

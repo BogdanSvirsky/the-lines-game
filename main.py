@@ -1,7 +1,4 @@
-import time
-from kiwisolver import Expression
 import pygame
-import os
 from game_field import GameField
 from elements import PenTool
 from elements import RulerTool
@@ -26,6 +23,8 @@ pen = PenTool(screen, 50, 725)
 ruler = RulerTool(screen, 320, 725)
 statistic = StatisticWidget(100, 60, game_field)
 allsprites = pygame.sprite.Group(pen, ruler)
+FPS = 60
+clock = pygame.time.Clock()
 
 try:
     while running:
@@ -57,6 +56,7 @@ try:
         screen.fill(BACKGROUND_COLOR)
         render(game_field)
         pygame.display.flip()
+        clock.tick(FPS)
 except Exception as a:
     print(a)
 pygame.quit()
