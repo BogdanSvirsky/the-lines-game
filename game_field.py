@@ -56,14 +56,15 @@ class GameField: # i want to realize scaling of game field
         pygame.draw.rect(screen, (230, 230, 230), pygame.Rect(self.zero_x, self.zero_y, self.length_x, self.length_y), border_radius=8)
         
         for point in self.points:
-            if point.host:
+            if point.host != None:
                 check_available_points(point, self)
             if point.host != None:
                 color = self.players[point.host].color
-            elif point.is_available:
-                color = (5, 5, 5)
             else:
-                color = (100, 100, 100)
+                if point.is_available:
+                    color = (5, 5, 5)
+                else:
+                    color = (100, 100, 100)
             pygame.draw.polygon(screen, color, [(point.x - self.POINT_SIZE, point.y), (point.x, point.y + self.POINT_SIZE), (point.x + self.POINT_SIZE, point.y), (point.x, point.y - self.POINT_SIZE)])
         for polygon in self.polygons:
             if len(polygon.coords) >= 2:

@@ -151,6 +151,37 @@ class RulerTool(pygame.sprite.Sprite):
             return False
 
 
+class MenuButton(pygame.sprite.Sprite):
+    def __init__(self, x, y) -> None:
+        pygame.sprite.Sprite.__init__(self)
+        self.x = x
+        self.y = y
+        self.is_clicked = False
+        self.update()
+
+    def update(self):
+        if self.is_clicked:
+            self.image, self.rect = load_image("menu_button_selected.png")
+        else:
+            self.image, self.rect = load_image("menu_button.png", -1)
+        self.rect.move_ip(self.x, self.y)
+
+    def unselect(self):
+        self.is_clicked = False
+        self.update()
+    
+    def click(self, mouse_x, mouse_y):
+        if self.x <= mouse_x <= self.x + self.w:
+            if self.y <= mouse_y <= self.y + self.h:
+                self.is_clicked = not self.is_clicked
+                print("pause_button was clicked")
+                return True
+            else:
+                return False
+        else:
+            return False
+
+
 class StatisticWidget:
     def __init__(self, x, y, game_field: GameField) -> None:
         self.game_field = game_field
@@ -185,6 +216,38 @@ class StatisticWidget:
         for text, color, textpos in textdata_list:
             pygame.draw.rect(screen, color, text.get_rect(width=textpos.width + indent, height=textpos.height + indent, centerx=textpos.centerx, centery=textpos.centery), border_radius=7)
             screen.blit(text, textpos)                      
+
+
+class Button:
+    def __init__(self, x, y, w: int, h: int, text=None) -> None:
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+        self.text = text
+        self.is_clicked = False
+    
+    def render(self, screen):
+        BUTTON_DEPTH = 6
+        BORDER_RADUIS = 8
+        BUTTON_COLOR = (204, 153, 0)
+        BUTTON_SIDE_COLOR = (102, 77, 0)
+        if self.is_clicked:
+            # clicked = True
+            font = pygame.font.SysFont("Cursive", 35)
+            text = font.render(self.text, True, (255, 255, 255))
+            main_rect = pygame.Rect(self.x + BUTTON_DEPTH - 3, self.y, self.w, self.h)
+            pygame.draw.rect(screen, (0, 0, 0), main_rect, border_radius=BORDER_RADUIS)
+            pygame.draw.rect(screen, (50, 50, 50), pygame.Rect(self.x + BUTTON_DEPTH - 3, self.y, self.w, self.h - BUTTON_DEPTH), border_radius=BORDER_RADUIS)
+            screen.blit(text, (main_rect.centerx - text.get_rect().width // 2, main_rect.centery - text.get_rect().height // 2))
+        else:
+            # clicked = False
+            font = pygame.font.SysFont("Cursive", 35)
+            text = font.render(self.text, True, (255, 255, 255))
+            main_rect = pygame.Rect(self.x, self.y, self.w, self.h)
+            pygame.draw.rect(screen, BUTTON_SIDE_COLOR, main_rect, border_radius=BORDER_RADUIS)
+            pygame.draw.rect(screen, BUTTON_COLOR, pygame.Rect(self.x, self.y, self.w, self.h - BUTTON_DEPTH), border_radius=BORDER_RADUIS)
+            screen.blit(text, (main_rect.centerx - text.get_rect().width // 2, main_rect.centery - text.get_rect().height // 2))
 
 
 class Camera:
